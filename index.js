@@ -1,4 +1,4 @@
-d3.csv("city_of_calgary_census_2016.csv").then(function(data) {
+d3.csv("city_of_calgary_census_2016.csv").then(function (data) {
     let margin = 60;
     let width = 1000 - (2 * margin);
     let height = 600 - (2 * margin);
@@ -6,6 +6,22 @@ d3.csv("city_of_calgary_census_2016.csv").then(function(data) {
         .style("height", (height + (2 * margin))+ 'px')
         .style("width", (width + (2 * margin)) + 'px')
         .style("margin", margin + "px");
+    
+    svg.append('text')
+        .attr('x', width / 2 + margin)
+        .attr('y', height + 2 * margin)
+        .attr('text-anchor', 'middle')
+        .text('Communities');
+    
+    svg.append('text')
+        .attr('x', -(height / 2) - margin)
+        .attr('y', margin / 5)
+        .attr('transform', 'rotate(-90)')
+        .attr('text-anchor', 'middle')
+        .text('Population');
+    
+    
+    
     
     let initialValue = 0;
 
@@ -42,16 +58,36 @@ d3.csv("city_of_calgary_census_2016.csv").then(function(data) {
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(xScale));
     
-    barGraph.selectAll()
+    let bars = barGraph.selectAll()
         .data(filteredData)
         .enter()
+        .append('g');
+    bars
         .append('rect')
+        .attr('class', 'bar')
         .attr('x', (s) => xScale(s.NAME))
         .attr('y', (s) => yScale(s.RES_CNT))
         .attr('height', (s) => height - yScale(s.RES_CNT))
-        .attr('width', xScale.bandwidth());
+        .attr('width', xScale.bandwidth())
+        .on('mouseenter', function (s, i) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr('opacity', 0.5)
+        })
+        .on('mouseleave', function () { 
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr('opacity', 1)
+        });
     
-    
+        bars.append('text')
+        .attr('x', (s) => xScale(s.NAME) + xScale.bandwidth() / 2)
+        .attr('y', (s) => yScale(s.RES_CNT) + 30)
+        .attr('text-anchor', 'middle')
+        .style("fill", '#FFFFFF')
+        .text((s) => s.RES_CNT);
 });
 
 

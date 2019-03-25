@@ -30,12 +30,12 @@ d3.csv("city_of_calgary_census_2016.csv").then(function (data) {
         if (x > y) {return 1;}
         return 0;
     });
-    
+
     let totalPop = filteredData.reduce( function (accumulator, currentValue) { 
-        return accumulator + Number(currentValue.RES_CNT);
+        return Math.max(accumulator,  Number(currentValue.RES_CNT));
     }, initialValue);
     
-    totalPop = totalPop / 2 ;
+   totalPop = totalPop + totalPop/4;
     
     let barGraph = svg.append('g')
         .attr('transform', `translate(${margin}, ${margin})`);

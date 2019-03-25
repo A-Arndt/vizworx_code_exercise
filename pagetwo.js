@@ -20,15 +20,15 @@ function getDataset(value){
         return item;
     });
      if(value === 0) {
-        drawChart(dataset)
+        drawChart(dataset, "Calgary Population By Sector 2016")
     } else {
-        drawChart(datasetTwo)
+        drawChart(datasetTwo, "Calgary Population By Community Structure")
     }
 });
     
 }
 
-function drawChart(dataset) {
+function drawChart(dataset, title) {
     let margin = 60;
     let width = 1000 - (2 * margin);
     let height = 700 - (2 * margin);
@@ -88,9 +88,10 @@ function drawChart(dataset) {
         .text(function(d) { return d.data.area; });
     
     svg.append("g")
-        .attr("transform", "translate(" + (width / 2 - (2 * margin)) + "," + (height + margin) + ")")
+        .attr("transform", "translate(" + (width / 2 ) + "," + (height + margin) + ")")
         .append("text")
-        .text("Calgary Population By Area 2016")
+        .attr('text-anchor',  'middle')
+        .text(title)
         .attr("class", "title")
 }
 

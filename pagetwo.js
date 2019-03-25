@@ -1,26 +1,37 @@
-d3.csv("city_of_calgary_census_2016.csv").then(function (data) { 
+function getDataset(value){
+    d3.selectAll('g').remove();
+    d3.csv("city_of_calgary_census_2016.csv").then(function (data) { 
     let sectors = [...new Set(data.map(x => x.SECTOR))];
-    let dataset = sectors.map(function(sector){
+    var dataset = sectors.map(function(sector){
         var item = {};
-        item['sector'] = sector;
+        item['area'] = sector;
         item['population'] = areaPopulation(data, sector);
         return item;
     });
     
-    let totalPopulation = dataset.reduce( function (accumulator, currentValue) { 
+    var totalPopulation = dataset.reduce( function (accumulator, currentValue) { 
         return accumulator + Number(currentValue.population);
     }, 0);
-
-
-
-    drawChart(dataset);
-   
+    let communities = [...new Set(data.map(x => x.COMM_STRUCTURE))];
+    var datasetTwo = communities.map(function(comm){
+        var item = {};
+        item['area'] = comm;
+        item['population'] = areaPopulation(data, comm);
+        return item;
+    });
+     if(value === 0) {
+        drawChart(dataset)
+    } else {
+        drawChart(datasetTwo)
+    }
 });
+    
+}
 
 function drawChart(dataset) {
     let margin = 60;
-    let width = 700 - (2 * margin);
-    let height = 600 - (2 * margin);
+    let width = 1000 - (2 * margin);
+    let height = 700 - (2 * margin);
     let radius = Math.min(width, height) /2;
     
     let svg = d3.select('svg')
@@ -52,13 +63,12 @@ function drawChart(dataset) {
         .attr("class", "arc")
         .on('mouseenter', function (s, i) {
             d3.selectAll(".arc")
-
-                .attr('opacity', 0.5);
+                .attr('opacity', 0.1);
             d3.select(this)
                 .attr('opacity', 1)
                 .append("text")
                 .attr("class", "population")
-                .text(s.data.population).style("font", "20px");
+                .text(s.data.population);
         })
         .on('mouseleave', function () { 
             d3.selectAll(".arc")
@@ -75,12 +85,12 @@ function drawChart(dataset) {
         .attr("transform", function(d) {
             return "translate(" +label.centroid(d)+")";
         })
-        .text(function(d) { return d.data.sector; });
+        .text(function(d) { return d.data.area; });
     
     svg.append("g")
         .attr("transform", "translate(" + (width / 2 - (2 * margin)) + "," + (height + margin) + ")")
         .append("text")
-        .text("Calgary Population By Sector 2016")
+        .text("Calgary Population By Area 2016")
         .attr("class", "title")
 }
 
@@ -94,4 +104,16 @@ function areaPopulation(obj, area) {
     }, 0);
 }
 
-
+window.addEventListener("load", function(){
+    let button = document.getElementById('change');
+    getDataset(0);
+    button.addEventListener('click', function(e){
+        toggle =Number(e.target.value);
+        getDataset(toggle);
+        if(toggle === 1){
+            e.target.value = 0;
+        } else {
+            e.target.value = 1;
+        }
+    });
+});

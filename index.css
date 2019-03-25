@@ -4,3 +4,26 @@ body {
 .bar{
     fill:#01579B;
 }
+
+
+
+.arc text {
+    font: 10px sans-serif;
+    text-anchor: middle;
+    font-weight: bold;
+
+}
+
+.arc path {
+    stroke: #fff;
+}
+
+.title {
+    fill: black;
+    font-weight: bold;
+}
+
+text.population {
+    font: 15px sans-serif;
+    font-weight: bold;
+}

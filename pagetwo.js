@@ -6,9 +6,9 @@
         filtered dataset based on the value passed in.
     Calls the drawChart function based on dataset created.
 */
-function initDataset(value){
+function initDataset(value) {
     d3.selectAll('g').remove();
-    d3.csv("city_of_calgary_census_2016.csv").then(function (data) { 
+    d3.csv("city_of_calgary_census_2016.csv").then(function (data) {
         let message = null;
         let commSectors = [];
         if  (value === 0) {
@@ -28,7 +28,6 @@ function initDataset(value){
 
         drawChart(dataset, title);
     });
-    
 }
 
 function drawChart(dataset, title) {
@@ -36,7 +35,7 @@ function drawChart(dataset, title) {
     let width = 1000 - (2 * margin);
     let height = 700 - (2 * margin);
     let radius = Math.min(width, height) /2;
-    let innerRadius = radius - (2 * margin);
+    let innerRadius = radius - (2.5 * margin);
     let formatComma = d3.format(",");
     
     let svg = d3.select('svg')
@@ -51,12 +50,12 @@ function drawChart(dataset, title) {
         return d.population; 
     });
     
-    pie.padAngle(.02);
+    pie.padAngle(.03);
 
     let path = d3.arc()
-        .outerRadius(radius - 10)
+        .outerRadius(radius)
         .innerRadius(100);
-
+    
     let label = d3.arc()
         .outerRadius(radius)
         .innerRadius(innerRadius);
@@ -66,44 +65,59 @@ function drawChart(dataset, title) {
         .enter().append('g')
         .attr("class", "arc")
         .on('mouseenter', function (s, i) {
+            //Clear the help info and fade non-hovered slices
             d3.selectAll(".info").remove();
             d3.selectAll(".arc")
                 .attr('opacity', 0.1);
             
+            //Display the total residents for an area
             d3.select(this)
                 .attr('opacity', 1)
                 .append("text")
                 .attr("class", "population")
                 .text(`Residents: ${formatComma(s.data.population)}`);
+            
+            //Display the title for small slices
+            d3.select(this).select(".area").attr("opacity", 1);
+            
         })
         .on('mouseleave', function () { 
+            //Fade in all other slices, remove resident data and hide small slice titles
             d3.selectAll(".arc")
                 .attr('opacity', 1);
             d3.selectAll(".population").remove();
+            d3.selectAll(".area").attr("opacity", function(d) {
+                return (d.endAngle - d.startAngle < (4*Math.PI/180) ? 0 : 1);
+            });
         });
     
     arc.append("path")
         .attr("d", path)
         .attr("fill", function(d) { return color(d.data.population); });
-        
+    
+    /*Put in some guiding info to get users to see more data.*/ 
     arc.append("text")
         .attr("class", "info")
         .text(`Hover over slice for info.`);
     
+    /*Append area names to each slice, but only those that are large enough to avoid overlapping.*/
     arc.append("text")
         .attr("transform", function(d) {
-                return "translate(" +label.centroid(d)+")";
+            return `translate(${label.centroid(d)})`;
         })
         .text(function(d) { return d.data.area; })
-        .attr("class", "area");
+        .attr("class", "area")
+        .attr("opacity", function(d) {
+            return (d.endAngle - d.startAngle < (4*Math.PI/180) ? 0 : 1); 
+        });
     
+    /*Append the title of the chart.*/
     svg.append("g")
         .attr("transform", `translate( ${(width / 2 )}, ${(height + margin)})`)
         .append("text")
         .attr('text-anchor',  'middle')
         .text(title)
-        .attr("class", "title")
-    
+        .attr("class", "title");
 }
 
 /*

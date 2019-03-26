@@ -20,7 +20,7 @@ svg {
 }
 
 .arc text {
-    font: 10px sans-serif;
+    font: 13px sans-serif;
     text-anchor: middle;
     font-weight: bold;
 }
@@ -43,6 +43,10 @@ text.population {
 .inter {
     border: black;
     text-align: center;
+}
+
+.title { 
+    font: 30px sans-serif;
 }
 
 a, button {

@@ -1,7 +1,14 @@
-function getDataset(value){
+/*
+    PARAMS: value: 0 or 1 (not 0). 
+                0 indicates the Sector dataset.
+                1 (or not 0) indicates the Community Structure dataset.
+    This function takes the full csv file and breaks it down into a 
+        filtered dataset based on the value passed in.
+    Calls the drawChart function based on dataset created.
+*/
+function initDataset(value){
     d3.selectAll('g').remove();
     d3.csv("city_of_calgary_census_2016.csv").then(function (data) { 
-        
         let message = null;
         let commSectors = [];
         if  (value === 0) {
@@ -30,11 +37,13 @@ function drawChart(dataset, title) {
     let height = 700 - (2 * margin);
     let radius = Math.min(width, height) /2;
     let innerRadius = radius - (2 * margin);
+    let formatComma = d3.format(",");
+    
     let svg = d3.select('svg')
         .attr("radius", radius);
     
     let g = svg.append("g")
-                   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .attr("transform", `translate(${width / 2}, ${height / 2})`);
     
     let color = d3.scaleOrdinal(d3.schemePaired);
     
@@ -57,19 +66,20 @@ function drawChart(dataset, title) {
         .enter().append('g')
         .attr("class", "arc")
         .on('mouseenter', function (s, i) {
+            d3.selectAll(".info").remove();
             d3.selectAll(".arc")
                 .attr('opacity', 0.1);
+            
             d3.select(this)
                 .attr('opacity', 1)
                 .append("text")
                 .attr("class", "population")
-                .text(s.data.population);
+                .text(`Residents: ${formatComma(s.data.population)}`);
         })
         .on('mouseleave', function () { 
             d3.selectAll(".arc")
-                .attr('opacity', 1)
-            d3.selectAll(".population")
-                .remove();
+                .attr('opacity', 1);
+            d3.selectAll(".population").remove();
         });
     
     arc.append("path")
@@ -77,13 +87,18 @@ function drawChart(dataset, title) {
         .attr("fill", function(d) { return color(d.data.population); });
         
     arc.append("text")
+        .attr("class", "info")
+        .text(`Hover over slice for info.`);
+    
+    arc.append("text")
         .attr("transform", function(d) {
-            return "translate(" +label.centroid(d)+")";
+                return "translate(" +label.centroid(d)+")";
         })
-        .text(function(d) { return d.data.area; });
+        .text(function(d) { return d.data.area; })
+        .attr("class", "area");
     
     svg.append("g")
-        .attr("transform", "translate(" + (width / 2 ) + "," + (height + margin) + ")")
+        .attr("transform", `translate( ${(width / 2 )}, ${(height + margin)})`)
         .append("text")
         .attr('text-anchor',  'middle')
         .text(title)
@@ -91,6 +106,11 @@ function drawChart(dataset, title) {
     
 }
 
+/*
+    This function takes an array, and a string (either a Community structure or sector)
+        to determine if the object conains that string and create a filtered array.
+    Once filtered the population is summed up into a total population for that area.
+*/
 function areaPopulation(obj, area) {
     let filteredSector = obj.filter(function(obj){
         return obj.SECTOR === area || obj.COMM_STRUCTURE === area;
@@ -101,12 +121,15 @@ function areaPopulation(obj, area) {
     }, 0);
 }
 
+/*  On load, call the initDataset to draw the first dataset. 
+    Add an event listener to the button to change the visualization.
+*/
 window.addEventListener("load", function(){
     let button = document.getElementById('change');
-    getDataset(0);
+    initDataset(0);
     button.addEventListener('click', function(e){
         toggle =Number(e.target.value);
-        getDataset(toggle);
+        initDataset(toggle);
         if(toggle === 1){
             e.target.value = 0;
         } else {

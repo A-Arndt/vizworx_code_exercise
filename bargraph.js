@@ -2,11 +2,11 @@ d3.csv("city_of_calgary_census_2016.csv").then(function (data) {
     let margin = 60;
     let width = 1000 - (2 * margin);
     let height = 600 - (2 * margin);
-    let svg = d3.select('svg')
-        .style("height", (height + (2 * margin))+ 'px')
-        .style("width", (width + (2 * margin)) + 'px')
-        .style("margin", margin + "px");
-    
+    let svg = d3.select('svg');
+//        .style("height", (height + (2 * margin))+ 'px')
+//        .style("width", (width + (2 * margin)) + 'px')
+//        .style("margin", `${margin}px`);
+//    
     svg.append('text')
         .attr('x', width / 2 + margin)
         .attr('y', height + 2 * margin)
@@ -60,8 +60,8 @@ d3.csv("city_of_calgary_census_2016.csv").then(function (data) {
         .data(filteredData)
         .enter()
         .append('g');
-    bars
-        .append('rect')
+    
+    bars.append('rect')
         .attr('class', 'bar')
         .attr('x', (s) => xScale(s.NAME))
         .attr('y', (s) => yScale(s.RES_CNT))

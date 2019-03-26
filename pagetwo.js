@@ -35,9 +35,7 @@ function drawChart(dataset, title) {
     let radius = Math.min(width, height) /2;
     
     let svg = d3.select('svg')
-        .style("height", (height + (2 * margin))+ 'px')
-        .style("width", (width + (2 * margin)) + 'px')
-        .style("margin", margin + "px")
+
         .attr("radius", radius);
     
     let g = svg.append("g")

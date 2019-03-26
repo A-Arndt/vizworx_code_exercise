@@ -1,30 +1,26 @@
 function getDataset(value){
     d3.selectAll('g').remove();
     d3.csv("city_of_calgary_census_2016.csv").then(function (data) { 
-    let sectors = [...new Set(data.map(x => x.SECTOR))];
-    var dataset = sectors.map(function(sector){
-        var item = {};
-        item['area'] = sector;
-        item['population'] = areaPopulation(data, sector);
-        return item;
+        
+        let message = null;
+        let commSectors = [];
+        if  (value === 0) {
+            title = "Calgary Population By Sector 2016";
+            commSectors = [...new Set(data.map(x => x.SECTOR))]
+        } else {
+            title = "Calgary Population By Community Structure";
+            commSectors =[...new Set(data.map(x => x.COMM_STRUCTURE))];
+        }
+
+        let dataset = commSectors.map(function(commSector){
+            let item = {};
+            item['area'] = commSector;
+            item['population'] = areaPopulation(data, commSector);
+            return item;
+        });
+
+        drawChart(dataset, title);
     });
-    
-    var totalPopulation = dataset.reduce( function (accumulator, currentValue) { 
-        return accumulator + Number(currentValue.population);
-    }, 0);
-    let communities = [...new Set(data.map(x => x.COMM_STRUCTURE))];
-    var datasetTwo = communities.map(function(comm){
-        var item = {};
-        item['area'] = comm;
-        item['population'] = areaPopulation(data, comm);
-        return item;
-    });
-     if(value === 0) {
-        drawChart(dataset, "Calgary Population By Sector 2016")
-    } else {
-        drawChart(datasetTwo, "Calgary Population By Community Structure")
-    }
-});
     
 }
 
@@ -33,9 +29,8 @@ function drawChart(dataset, title) {
     let width = 1000 - (2 * margin);
     let height = 700 - (2 * margin);
     let radius = Math.min(width, height) /2;
-    
+    let innerRadius = radius - (2 * margin);
     let svg = d3.select('svg')
-
         .attr("radius", radius);
     
     let g = svg.append("g")
@@ -46,6 +41,8 @@ function drawChart(dataset, title) {
     let pie = d3.pie().value(function(d) { 
         return d.population; 
     });
+    
+    pie.padAngle(.02);
 
     let path = d3.arc()
         .outerRadius(radius - 10)
@@ -53,7 +50,7 @@ function drawChart(dataset, title) {
 
     let label = d3.arc()
         .outerRadius(radius)
-        .innerRadius(radius - (2 * margin));
+        .innerRadius(innerRadius);
     
      let arc = g.selectAll('.arc')
         .data(pie(dataset))
@@ -91,6 +88,7 @@ function drawChart(dataset, title) {
         .attr('text-anchor',  'middle')
         .text(title)
         .attr("class", "title")
+    
 }
 
 function areaPopulation(obj, area) {

@@ -1,4 +1,3 @@
-"use strict";
 d3.csv("city_of_calgary_census_2016.csv").then(function (data) {
     let margin = 60;
     let width = 1000 - (2 * margin);
